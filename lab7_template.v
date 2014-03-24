@@ -34,15 +34,27 @@
 
 module dff ( d, clk, preset, clear, q, q_bar );
 
-input /*FILL IN*/;
-output /*FILL IN*/;
+input d, clk, preset, clear;
+output q, q_bar;
 
-reg /*FILL IN*/;
+reg q, q_bar;
 
-always @ (/*FILL IN*/ )
+always @ ( posedge clk or negedge preset )
 begin
 
-	/*FILL IN*/
+	if ( clear == 1 ) begin
+		q <= 1'b0;
+		q_bar <= 1'b1;
+	end else if ( preset == 1 ) begin
+		q <= 1'b1;
+		q_bar <= 1'b0;
+	end else if ( d == 1 ) begin
+		q <= 1'b1;
+		q_bar <= 1'b0;
+	end else if ( d == 0 ) begin
+		q <= 1'b0;
+		q_bar <= 1'b1;
+	end
 
 end
 
@@ -57,7 +69,7 @@ endmodule
 // BINARY COUNTER module
 // This is a STRUCTURAL LEVEL description
 // ** Do not use high level constructs such as if / else / while / etc
-// This module should combines the 4 D FFs to 
+// This module should combine the 4 D FFs to 
 // create the binary counter circuit
 // IMPORATANT NOTE: This module initializes the FFs to the
 // state 1100
@@ -66,7 +78,7 @@ endmodule
 
 module binary_counter ( clk, reset, a, b, c, d );
 
-input /*FILL IN*/;
+input clk, reset;
 output a, b, c, d;
 
 wire a, b, c, d;
@@ -75,27 +87,55 @@ wire d1, d2, d3, d4;
 wire q1, q1_bar, q2, q2_bar, q3, q3_bar, q4, q4_bar;
 
 // create input functions for the FFs
-assign d1 = /*FILL IN*/;
-assign d2 = /*FILL IN*/;
-assign d3 = /*FILL IN*/;
-assign d4 = /*FILL IN*/;
+assign d1 = (!b & !a) + (!d & a);
+assign d2 = (!b & !a) + (c & b & a) + (d & b);
+assign d3 = (!d & !b & !a) + (!d & !c) + (b & !a);
+assign d4 = (!b & a) + (d & !b) + (d & a);
 
 // Create (instantiate) 4 flip flops and assign input and output variables
 // Flip flop 1
 
-/*FILL IN*/
+dff ff1 (
+	.d (d1),
+	.clk (clk),
+	.preset (reset),
+	.clear (reset),
+	.q (q1),
+	.q_bar (q1_bar)
+);
 
 // Flip flop 2
 
-/*FILL IN*/
+dff ff2 (
+	.d (d2),
+	.clk (clk),
+	.preset (reset),
+	.clear (reset),
+	.q (q2),
+	.q_bar (q2_bar)
+);
 
 // Flip flop 3
 
-/*FILL IN*/
+dff ff3 (
+	.d (d3),
+	.clk (clk),
+	.preset (1'b0),
+	.clear (reset),
+	.q (q3),
+	.q_bar (q3_bar)
+);
 
 // Flip flop 4
 
-/*FILL IN*/
+dff ff4 (
+	.d (d4),
+	.clk (clk),
+	.preset (1'b0),
+	.clear (reset),
+	.q (q4),
+	.q_bar (q4_bar)
+);
 
 // read the outputs
 assign a = q1;
@@ -134,8 +174,8 @@ initial begin
 	reset = 1;
 
 	#1 reset = 0;
-	//#120 reset = 1;
-	//#10 reset = 0;
+	#120 reset = 1;
+	#10 reset = 0;
 
 	#500 $finish; 
 end
@@ -145,4 +185,3 @@ always begin
 end
 
 endmodule
-
